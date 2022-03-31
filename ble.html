@@ -175,12 +175,14 @@ var batterylevel;
 			onClickShowHideID('idReconnect','hidden');
 		}
 		
-		device.addEventListener('gattserverdisconnected', function(event){
-			var message = event.target.name + " is disconnected";
-			writelog(message);
-			updateitemid("idDeviceName", message);
-			onClickShowHideID('idReconnect','visible');
-		});
+		if (reconnection == false){
+			device.addEventListener('gattserverdisconnected', function(event){
+				var message = event.target.name + " is disconnected";
+				writelog(message);
+				updateitemid("idDeviceName", message);
+				onClickShowHideID('idReconnect','visible');
+			});
+		}
 
 /*
 		writelog("getPrimaryService ... ");
