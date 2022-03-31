@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>OTA Application</title>
+</head>
+
+<body>
+<h1>OTA Application</h1>
+<hr>
+
+<button id="scan" onclick="onClickBleScan()">BLE Scan</button>
+	<span id="idDeviceName"><= Click to scan for device</span>
+	<span id="idReconnect" onclick="onClickReconnect();" style="visibility:hidden;color:red;"><b><u>Reconnect</u></b></span><br>
+	<div id="idDeviceInfo">.</div><br>
+<input type="file" id="idSelectedfile" title="&nbsp; " /><br>
+	<div id="idFileInfo">.</div><br>
+<button id="start" onclick="startOTA()">Start OTA</button>&nbsp;<span id="idOTAUpdate"></span>
+
+<br><br>
+<div id="idShowDetails" onclick="onClickShowHideID('idLogWindow', '')">Show Details</div><br>
+<div id="idLogWindow" style="display:none">
+	<div id="txtinfo" rows="12" cols="60"></textarea>
+</div>
+<script>
+	const OTA_SERVICE_UUID 	= "cbc0e185-76af-402e-9b82-620884e57934";
+	const OTA_COMMAND_UUID	= "0f3eabd8-c687-42fc-adcf-208bc2c126b9";
+	const OTA_BLOCK_UUID 	= "83573389-10fc-416a-b451-8be01e37442c";
+
+	const GET_RCU_INFO 		= new Uint8Array([0xA0,0x01,0x00,0x00,0x00,0x00,0x00,0x00]);
+	const START_OTA 		= new Uint8Array([0xA0,0x02,0x00,0x00,0x00,0x00,0x00,0x00]);
+
+	document.getElementById('idSelectedfile').addEventListener('change', handleFileSelect, false);
+
+	function handleFileSelect(evt) {
+		var files = evt.target.files; // FileList object
+		loadFileAsBinary(files[0]);
+		// files is a FileList of File objects. List some properties.
+		/*for (var i = 0, f; f = files[i]; i++) {
+			writelog(f.name);
+			writelog(f.size + " bytes, date: " + f.lastModifiedDate.toLocaleDateString());
+		}*/
+	} // handleFileSelect
+
+	var fileData;
+	function loadFileAsBinary(fileToLoad){
+		//var fileToLoad = document.getElementById("fileToLoad").files[0];
+
+		var fileReader = new FileReader();
+		fileReader.onload = function(fileLoadedEvent){
+			fileData = new Uint8Array(fileLoadedEvent.target.result);
+			writelog("Filename: " + fileToLoad.name);
+			writelog("          " + fileToLoad.size + " bytes, date: " + fileToLoad.lastModifiedDate.toLocaleDateString());
+			//console.log(fileData);
+			getImageInfo(fileData);
+		};
+		fileReader.onerror = function(error){
+			console.error("Error reading " + fileToLoad.name);
+		};
+
+		fileReader.readAsArrayBuffer(fileToLoad);
+	} // loadFileAsBinary
+
+	function getImageInfo(data){
+		var imageID = data[13].toString(16) + "." + data[12].toString(16);
+		var imageVer = data[3] + "." + data[2];
+		var imageLength = "0x" + data[6] + data[5] + data[4];
+		writelog("Image ID: " + imageID + ", Version: " + imageVer + ", Length: " + parseInt(imageLength));
+		updateitemid("idFileInfo", "Image ID: " + imageID + ", Version: " + imageVer);
+	}
+
+	function writelog(data){
+		let txtinfo = document.getElementById("txtinfo");
+		txtinfo.innerHTML+= data;
+		txtinfo.innerHTML += "<br>";
+		txtinfo.scrollTop = txtinfo.scrollHeight;
+	} // writelog
+
+	function writesameline(data){
+		let txtinfo = document.getElementById("txtinfo");
+		txtinfo.innerHTML+= data;
+		//txtinfo.innerHTML += "\n";
+	} // writelog
+
+	function arrayBuffer2HexString(buffer) { // buffer is an ArrayBuffer
+		return [...new Uint8Array(buffer)]
+			.map(x => x.toString(16).padStart(2, '0').toUpperCase())
+			.join(' ');
+	} // arrayBuffer2HexString
+
+	function ascii2HexString(str)
+	{
+		var hexarray = [];
+		for (var n = 0, l = str.length; n < l; n ++) 
+		{
+			var hex = Number(str.charCodeAt(n)).toString(16);
+			hexarray.push(hex);
+		}
+		return hexarray.join(' ');
+	}
+
+	function updateitemid(id, message){
+		document.getElementById(id).innerHTML = message;
+	}
+
+	function onClickReconnect() {
+	// Object event.target is Bluetooth Device getting disconnected.
+		connectToDevice(bleDevice, true);
+	}
+
+	function onClickShowHideID(id, forced){
+		var x = document.getElementById(id);
+
+		if (forced==''){ // none = hide
+			if (x.style.visibility === "hidden" || x.style.visibility === "visible"){
+				x.style.visibility = (x.style.visibility === "hidden")?"visible":"hidden";
+			}
+			else if (x.style.display === "none" || x.style.display === "block"){
+				x.style.display = (x.style.display === "none")?"block":"none";
+			}
+		}
+		else{
+			x.style.visibility = forced;
+		}
+		
+	} // onClickShowDetails
+
+var bleDevice;
+var otaService;
+var otaCommand;
+var otaBlock;
+
+	async function onClickBleScan() {
+		var message;
+
+		writelog('Scanning BLE devices ...');
+		const device = await navigator.bluetooth.requestDevice({
+			filters: [
+				{ services: [OTA_SERVICE_UUID] },
+    			{ name: '' },
+    					{namePrefix:'0'},{namePrefix:'1'},{namePrefix:'2'},{namePrefix:'3'},{namePrefix:'4'},{namePrefix:'5'},{namePrefix:'6'},{namePrefix:'7'},{namePrefix:'8'},{namePrefix:'9'},{namePrefix:'a'},{namePrefix:'b'},{namePrefix:'c'},{namePrefix:'d'},{namePrefix:'e'},{namePrefix:'f'},{namePrefix:'g'},{namePrefix:'h'},{namePrefix:'i'},{namePrefix:'j'},{namePrefix:'k'},{namePrefix:'l'},{namePrefix:'m'},{namePrefix:'n'},{namePrefix:'o'},{namePrefix:'p'},{namePrefix:'q'},{namePrefix:'r'},{namePrefix:'s'},{namePrefix:'t'},{namePrefix:'u'},{namePrefix:'v'},{namePrefix:'w'},{namePrefix:'x'},{namePrefix:'y'},{namePrefix:'z'},{namePrefix:'A'},{namePrefix:'B'},{namePrefix:'C'},{namePrefix:'D'},{namePrefix:'E'},{namePrefix:'F'},{namePrefix:'G'},{namePrefix:'H'},{namePrefix:'I'},{namePrefix:'J'},{namePrefix:'K'},{namePrefix:'L'},{namePrefix:'M'},{namePrefix:'N'},{namePrefix:'O'},{namePrefix:'P'},{namePrefix:'Q'},{namePrefix:'R'},{namePrefix:'S'},{namePrefix:'T'},{namePrefix:'U'},{namePrefix:'V'},{namePrefix:'W'},{namePrefix:'X'},{namePrefix:'Y'},{namePrefix:'Z'}
+			]
+		});
+
+		updateitemid("idDeviceInfo", ".");
+		message = "Connecting to " + device.name;
+		updateitemid("idDeviceName", message);
+		writelog(message);
+		bleDevice = device;
+		await connectToDevice(device, false);
+	}
+
+	async function connectToDevice(device, reconnection){
+		var gattserver = await device.gatt.connect();
+		if (gattserver === undefined){
+			message = "Unable to connect to " + device.name;
+			writelog(message);
+			updateitemid("idDeviceName", message);
+		}
+		else{
+			message = device.name + " connected";
+    		writelog(message);
+			updateitemid("idDeviceName", message);
+			onClickShowHideID('idReconnect','hidden');
+		}
+		
+		device.addEventListener('gattserverdisconnected', function(event){
+			var message = event.target.name + " is disconnected";
+			writelog(message);
+			updateitemid("idDeviceName", message);
+			onClickShowHideID('idReconnect','visible');
+		});
+
+		writelog("getPrimaryService ... ");
+		otaService = await gattserver.getPrimaryService(OTA_SERVICE_UUID);
+		writelog("OTA_SERVICE_UUID : " + otaService.uuid);
+
+		writelog("getCharacteristic ... ");
+		otaCommand = await otaService.getCharacteristic(OTA_COMMAND_UUID);
+		writelog("OTA_COMMAND_UUID : " + otaCommand.uuid);
+
+		await otaCommand.startNotifications();
+		writelog("Notifications started");
+		otaCommand.addEventListener("characteristicvaluechanged",
+				handleCharacteristicValueChanged);
+
+		writelog("getCharacteristic ... ");
+		otaBlock = await otaService.getCharacteristic(OTA_BLOCK_UUID);
+		writelog("OTA_BLOCK_UUID : " + otaBlock.uuid);
+		
+		await otaBlock.startNotifications();
+		writelog("Notifications started");
+		otaBlock.addEventListener("characteristicvaluechanged",
+				handleCharacteristicValueChangedBlock);
+
+		if (reconnection == false){
+			writeCommand(GET_RCU_INFO);
+		}
+		//await char.stopNotifications();
+		//await server.disconnect();		
+	} // connectToDevice
+/*
+	function bleScan2() {	
+  		writelog('Scanning BLE devices ...');
+
+  		const device = await navigator.bluetooth.requestDevice(options);
+
+  		navigator.bluetooth.requestDevice({
+			// filters: [...] <- Prefer filters to save energy & show relevant devices.
+			//filters: [{
+    		//	manufacturerData: [{companyIdentifier: 0x005D}]
+    		//services: ['00001812-0000-1000-8000-00805f9b34fb']
+  			//}],
+  			filters: [
+  				{ services: [OTA_SERVICE_UUID] },
+    			{ name: '' },
+    					{namePrefix:'0'},{namePrefix:'1'},{namePrefix:'2'},{namePrefix:'3'},{namePrefix:'4'},{namePrefix:'5'},{namePrefix:'6'},{namePrefix:'7'},{namePrefix:'8'},{namePrefix:'9'},{namePrefix:'a'},{namePrefix:'b'},{namePrefix:'c'},{namePrefix:'d'},{namePrefix:'e'},{namePrefix:'f'},{namePrefix:'g'},{namePrefix:'h'},{namePrefix:'i'},{namePrefix:'j'},{namePrefix:'k'},{namePrefix:'l'},{namePrefix:'m'},{namePrefix:'n'},{namePrefix:'o'},{namePrefix:'p'},{namePrefix:'q'},{namePrefix:'r'},{namePrefix:'s'},{namePrefix:'t'},{namePrefix:'u'},{namePrefix:'v'},{namePrefix:'w'},{namePrefix:'x'},{namePrefix:'y'},{namePrefix:'z'},{namePrefix:'A'},{namePrefix:'B'},{namePrefix:'C'},{namePrefix:'D'},{namePrefix:'E'},{namePrefix:'F'},{namePrefix:'G'},{namePrefix:'H'},{namePrefix:'I'},{namePrefix:'J'},{namePrefix:'K'},{namePrefix:'L'},{namePrefix:'M'},{namePrefix:'N'},{namePrefix:'O'},{namePrefix:'P'},{namePrefix:'Q'},{namePrefix:'R'},{namePrefix:'S'},{namePrefix:'T'},{namePrefix:'U'},{namePrefix:'V'},{namePrefix:'W'},{namePrefix:'X'},{namePrefix:'Y'},{namePrefix:'Z'}
+  			],
+  			optionalServices: ['battery_service'] // Required to access service later.
+    		//acceptAllDevices: true
+  		})
+  		.then(device => {
+    		writelog('Connecting to ' + device.name);
+    			let server = device.gatt.connect();
+    			return server;
+  		})
+		.then(server => {
+			if (server === undefined){
+				writelog("server undefined");
+			}
+			else{
+    			writelog('Connected');
+			}
+	  		// Getting Battery Service…
+	  		server1 = server;
+	  		writelog("getPrimaryService ... ");
+	  		return server.getPrimaryService(OTA_SERVICE_UUID);
+		})
+		.then(service => {
+			writelog("service : " + service.uuid);
+			primaryservice1 = service;
+	  		// Getting Battery Level Characteristic…
+	  		writelog("getCharacteristic ... ");
+	  		return service.getCharacteristic(OTA_COMMAND_UUID);
+		})
+		.then(characteristic => {
+			characteristic1 = characteristic;
+			writelog("characteristic : " + characteristic.uuid);
+			characteristic.startNotifications();
+			return characteristic;
+		})
+		.then(characteristic => {
+	  		writelog("Notifications started");
+			characteristic.addEventListener("characteristicvaluechanged",
+				handleCharacteristicValueChanged);
+  		
+  			return characteristic;
+  		})
+  		.then(characteristic => {
+  			writeCommand(GET_RCU_INFO);
+		})
+		.catch(error => { console.error(error); });
+	} // bleScan
+*/
+var rxdata2;
+	function handleCharacteristicValueChanged(event) {
+		var message;
+		let rxdata = new Uint8Array(event.target.value.buffer);
+		rxdata2 = rxdata;
+		writelog('handleCharacteristicValueChanged');
+	  	writelog('Length = ' + rxdata.byteLength + ", Data = " + arrayBuffer2HexString(rxdata));
+
+	  	if (rxdata[0] != 0xA0){
+	  		//writelog("Invalid Header: " + ascii2HexString(rxdata[0]));
+	  	}
+
+	  	switch(rxdata[1]){
+	  		case 0x01:
+	  			message = "RCU ID: " + rxdata[5].toString(16) + "." + rxdata[4].toString(16) +
+	  				", Version: " + rxdata[3].toString(16) + "." + rxdata[2].toString(16);
+	  			writelog(message);
+	  			updateitemid("idDeviceInfo", message);
+	  		break;
+
+	  		case 0x03:
+	  			writelog("Request Binary Image Header");
+	  			sendImageHeader(rxdata[2]);
+	  		break;
+
+			case 0x04:
+				otaStatus(rxdata[2]);
+				break;
+
+	  		default:
+		  		writelog("Unknown Action: " + ascii2HexString(rxdata[1]));
+	  		break;
+	  	} // switch
+
+	} // handleCharacteristicValueChanged
+
+var response;
+
+	async function handleCharacteristicValueChangedBlock(event) {
+		let rxdata = new Uint8Array(event.target.value.buffer);
+		rxdata2 = rxdata;
+		//writelog('handleCharacteristicValueChangedBlock');
+	  	//writelog('Length = ' + rxdata.byteLength + ", Data = " + arrayBuffer2HexString(rxdata));
+
+	  	var blockHeader = rxdata.slice(0, 4);
+	  	var blockNumber	= rxdata[1] + rxdata[2]*0x100 + rxdata[3]*0x10000;
+	  	//var readAddress = (blockNumber - 1) * blockLength;
+	  	//response 	= new Uint8Array([ ...blockHeader, ...fileData.slice(readAddress, readAddress+blockLength)]);
+	  	//console.log("response length: " + response.length);
+	  	var blockSizePerTransfer = 16;
+	  	var otaBlockSize = (rxdata[6]*0x100 + rxdata[5]);
+	  	//console.log("otaBlockSize: " + otaBlockSize);
+  		transferbinary(blockNumber, blockSizePerTransfer, otaBlockSize);
+	} // handleCharacteristicValueChangedBlock
+
+	var writeResult;
+	async function writeCommand(command){
+		writelog('writeCommand :' + arrayBuffer2HexString(command));
+		writeResult = await otaCommand.writeValueWithResponse(command);
+		writelog('writeCommand OK');
+	} // writeCommand
+
+	async function writeBlock(command){
+		writelog('writeBlock :' + arrayBuffer2HexString(command));
+		await otaBlock.writeValueWithoutResponse(command);
+		writelog('writeBlock OK');
+	} // writeBlock
+
+	function startOTA(){
+		writeCommand(START_OTA);
+	}
+
+	var currentProgress = 0;
+	function transferbinary(blockNumber, blockSize, totalSize){
+		var address 	= blockNumber*blockSize;
+		var blockHeader = new Uint8Array([0xA0, blockNumber & 0xFF, (blockNumber & 0x00FF00) >> 8, (blockNumber & 0xFF0000)>>16])
+		var writeData = new Uint8Array([...blockHeader, ...fileData.slice(address, address+blockSize)]);
+	  	
+	  	/*writelog('writeBlock :' + arrayBuffer2HexString(writeData) + ",totalSize = " + totalSize);
+	  	if (1) writelog(blockNumber);
+	  	await otaBlock.writeValueWithoutResponse(writeData);
+
+		if((totalSize - blockSize) > 0){
+			await transferbinary(blockNumber+1, blockSize, totalSize-blockSize);
+		}*/
+
+		//writelog('writeBlock :' + arrayBuffer2HexString(writeData));
+		var percent = Math.floor((blockNumber*blockSize)*100/fileData.length) + "%";
+		if (currentProgress != percent){
+			currentProgress = percent;
+			writelog(currentProgress);
+			updateitemid("idOTAUpdate", "Updating " + currentProgress);
+		}
+		otaBlock.writeValueWithResponse(writeData).then(writeResult=>{
+			//console.log("OK");
+			if((totalSize - blockSize) > 0){
+				transferbinary(blockNumber+1, blockSize, totalSize-blockSize);
+			}
+		});
+		
+	}
+
+	function sendImageHeader(headerlength){
+		var commandheader = new Uint8Array([0xA0, 0x03]);
+		var fileheader = fileData.slice(0, 16);
+		var command = new Uint8Array([ ...commandheader, ...fileData.slice(0, 16)]);
+		//writelog(arrayBuffer2HexString(command));
+		writeCommand(command);
+	}
+
+	function otaStatus(status){
+		var message;
+		switch(status){
+			case 0x08:
+				message = "Update Successfully";
+	  			writelog(message);
+				updateitemid("idOTAUpdate", message);
+			break;
+
+			default:
+				writelog("OTA Status : 0x" + status.toString(16));
+			break;
+		}
+
+	}
+
+</script>
+</body>
+</html>
