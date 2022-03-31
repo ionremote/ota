@@ -249,7 +249,31 @@ var batterylevel;
 		var gattserver = await bleDevice.gatt.connect();
 
 		writelog("getPrimaryService ... ");
-		
+
+		gattserver.getPrimaryService(OTA_SERVICE_UUID)
+		.then(service=>{
+			otaService = service;
+			writelog("OTA_SERVICE_UUID : " + otaService.uuid);
+			return service.getCharacteristic(OTA_COMMAND_UUID);
+		})
+		.then(characteristic=>{
+			otaCommand = characteristic;
+			writelog("OTA_COMMAND_UUID : " + otaCommand.uuid);
+			return characteristic;
+		})
+		.then(characteristic=>{
+			characteristic.startNotifications();
+			return characteristic;
+		})
+		.then(characteristic=>{
+			writelog("Notifications started");
+			characteristic.addEventListener("characteristicvaluechanged",
+				handleCharacteristicValueChanged);
+
+		})
+		.catch(error => { writelog(error); });
+
+/*
 		//writelog("getPrimaryService ... ");
 		otaService = await gattserver.getPrimaryService(OTA_SERVICE_UUID);
 		writelog("OTA_SERVICE_UUID : " + otaService.uuid);
@@ -258,21 +282,20 @@ var batterylevel;
 		otaCommand = await otaService.getCharacteristic(OTA_COMMAND_UUID);
 		writelog("OTA_COMMAND_UUID : " + otaCommand.uuid);
 
-		writelog("getCharacteristic ... ");
-		otaBlock = await otaService.getCharacteristic(OTA_BLOCK_UUID);
-		writelog("OTA_BLOCK_UUID : " + otaBlock.uuid);
-		
 		await otaCommand.startNotifications();
 		writelog("Notifications started");
 		otaCommand.addEventListener("characteristicvaluechanged",
 				handleCharacteristicValueChanged);
 
-		
-		
+		writelog("getCharacteristic ... ");
+		otaBlock = await otaService.getCharacteristic(OTA_BLOCK_UUID);
+		writelog("OTA_BLOCK_UUID : " + otaBlock.uuid);
+
 		await otaBlock.startNotifications();
 		writelog("Notifications started");
 		otaBlock.addEventListener("characteristicvaluechanged",
 				handleCharacteristicValueChangedBlock);
+*/				
 	}
 
 	function startNotification(notify_characteristic){
