@@ -207,75 +207,13 @@ var batterylevel;
 		//getBatteryLevel();
 
 		if (reconnection == false){
-			//writeCommand(GET_RCU_INFO);
+			getRCUInfo();//writeCommand(GET_RCU_INFO);
 		}
 
 		//await char.stopNotifications();
 		//await server.disconnect();		
 	} // connectToDevice
-/*
-	function bleScan2() {	
-  		writelog('Scanning BLE devices ...');
 
-  		const device = await navigator.bluetooth.requestDevice(options);
-
-  		navigator.bluetooth.requestDevice({
-			// filters: [...] <- Prefer filters to save energy & show relevant devices.
-			//filters: [{
-    		//	manufacturerData: [{companyIdentifier: 0x005D}]
-    		//services: ['00001812-0000-1000-8000-00805f9b34fb']
-  			//}],
-  			filters: [
-  				{ services: [OTA_SERVICE_UUID] },
-    			{ name: '' },
-    					{namePrefix:'0'},{namePrefix:'1'},{namePrefix:'2'},{namePrefix:'3'},{namePrefix:'4'},{namePrefix:'5'},{namePrefix:'6'},{namePrefix:'7'},{namePrefix:'8'},{namePrefix:'9'},{namePrefix:'a'},{namePrefix:'b'},{namePrefix:'c'},{namePrefix:'d'},{namePrefix:'e'},{namePrefix:'f'},{namePrefix:'g'},{namePrefix:'h'},{namePrefix:'i'},{namePrefix:'j'},{namePrefix:'k'},{namePrefix:'l'},{namePrefix:'m'},{namePrefix:'n'},{namePrefix:'o'},{namePrefix:'p'},{namePrefix:'q'},{namePrefix:'r'},{namePrefix:'s'},{namePrefix:'t'},{namePrefix:'u'},{namePrefix:'v'},{namePrefix:'w'},{namePrefix:'x'},{namePrefix:'y'},{namePrefix:'z'},{namePrefix:'A'},{namePrefix:'B'},{namePrefix:'C'},{namePrefix:'D'},{namePrefix:'E'},{namePrefix:'F'},{namePrefix:'G'},{namePrefix:'H'},{namePrefix:'I'},{namePrefix:'J'},{namePrefix:'K'},{namePrefix:'L'},{namePrefix:'M'},{namePrefix:'N'},{namePrefix:'O'},{namePrefix:'P'},{namePrefix:'Q'},{namePrefix:'R'},{namePrefix:'S'},{namePrefix:'T'},{namePrefix:'U'},{namePrefix:'V'},{namePrefix:'W'},{namePrefix:'X'},{namePrefix:'Y'},{namePrefix:'Z'}
-  			],
-  			optionalServices: ['battery_service'] // Required to access service later.
-    		//acceptAllDevices: true
-  		})
-  		.then(device => {
-    		writelog('Connecting to ' + device.name);
-    			let server = device.gatt.connect();
-    			return server;
-  		})
-		.then(server => {
-			if (server === undefined){
-				writelog("server undefined");
-			}
-			else{
-    			writelog('Connected');
-			}
-	  		// Getting Battery Service…
-	  		server1 = server;
-	  		writelog("getPrimaryService ... ");
-	  		return server.getPrimaryService(OTA_SERVICE_UUID);
-		})
-		.then(service => {
-			writelog("service : " + service.uuid);
-			primaryservice1 = service;
-	  		// Getting Battery Level Characteristic…
-	  		writelog("getCharacteristic ... ");
-	  		return service.getCharacteristic(OTA_COMMAND_UUID);
-		})
-		.then(characteristic => {
-			characteristic1 = characteristic;
-			writelog("characteristic : " + characteristic.uuid);
-			characteristic.startNotifications();
-			return characteristic;
-		})
-		.then(characteristic => {
-	  		writelog("Notifications started");
-			characteristic.addEventListener("characteristicvaluechanged",
-				handleCharacteristicValueChanged);
-  		
-  			return characteristic;
-  		})
-  		.then(characteristic => {
-  			writeCommand(GET_RCU_INFO);
-		})
-		.catch(error => { console.error(error); });
-	} // bleScan
-*/
 	function getBatteryLevel(){
 		bleDevice.gatt.connect()
 			.then(server => {
@@ -300,7 +238,7 @@ var batterylevel;
 	function otaNotification(){
 		startNotification(otaCommand);
 	}
-	
+
 	function startNotification(notify_characteristic){
 		notify_characteristic.startNotifications()
   			.then(_ => {
@@ -374,7 +312,8 @@ var response;
 	var writeResult;
 	async function writeCommand(command){
 		writelog('writeCommand :' + arrayBuffer2HexString(command));
-		writeResult = await otaCommand.writeValueWithoutResponse(command);
+		// Mobile Android only work withoutResponse
+		writeResult = await otaCommand.writeValueWithoutResponse(command); 
 		writelog('writeCommand OK');
 	} // writeCommand
 
