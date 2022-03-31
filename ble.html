@@ -17,8 +17,10 @@
 <input type="file" id="idSelectedfile" title="&nbsp; " /><br>
 	<div id="idFileInfo">.</div><br>
 <button id="start" onclick="startOTA()">Start OTA</button>&nbsp;<span id="idOTAUpdate"></span>
-<br>
-<button id="start" onclick="getBatteryLevel()">Battery</button>
+<br><br>
+<button id="start" onclick="otaNotification()">OTA Notification</button>
+<br><br>
+<button id="start" onclick="getRCUInfo()">GetRCUInfo</button>
 
 <br><br>
 <div id="idShowDetails" onclick="onClickShowHideID('idLogWindow', '')">Show Details</div><br>
@@ -205,7 +207,7 @@ var batterylevel;
 		//getBatteryLevel();
 
 		if (reconnection == false){
-			writeCommand(GET_RCU_INFO);
+			//writeCommand(GET_RCU_INFO);
 		}
 
 		//await char.stopNotifications();
@@ -293,10 +295,27 @@ var batterylevel;
 				updateitemid("idDeviceInfo", `Battery: ${value.getUint8(0)}`);
 			})
 			.catch(error => { console.error(error); });
-
 	}
 
-var rxdata2;
+	function otaNotification(){
+		startNotification(otaCommand);
+	}
+	
+	function startNotification(notify_characteristic){
+		notify_characteristic.startNotifications()
+  			.then(_ => {
+    			writelog('> Notifications started');
+		  	})
+			.catch(error => {
+				writelog('ERROR! ' + error);
+		  	});
+	}
+
+	function getRCUInfo(){
+		writeCommand(GET_RCU_INFO);
+	}
+
+	var rxdata2;
 	function handleCharacteristicValueChanged(event) {
 		var message;
 		let rxdata = new Uint8Array(event.target.value.buffer);
