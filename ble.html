@@ -24,7 +24,7 @@
 	<div id="txtinfo" rows="12" cols="60"></textarea>
 </div>
 <script>
-	const OTA_SERVICE_UUID 	= "cbc0e185-76af-402e-9b82-620884e57934";
+	const OTA_SERVICE_UUID 	= "cbc0e185-76af-402e-9b82-620884e57934";	// must be lowercase
 	const OTA_COMMAND_UUID	= "0f3eabd8-c687-42fc-adcf-208bc2c126b9";
 	const OTA_BLOCK_UUID 	= "83573389-10fc-416a-b451-8be01e37442c";
 
@@ -130,6 +130,7 @@ var bleDevice;
 var otaService;
 var otaCommand;
 var otaBlock;
+var batterylevel;
 
 	async function onClickBleScan() {
 		var message;
@@ -137,10 +138,13 @@ var otaBlock;
 		writelog('Scanning BLE devices ...');
 		const device = await navigator.bluetooth.requestDevice({
 			filters: [
-				{ services: [OTA_SERVICE_UUID] },
+				//{ services: [OTA_SERVICE_UUID, 'battery_service'] },
     			{ name: '' },
     					{namePrefix:'0'},{namePrefix:'1'},{namePrefix:'2'},{namePrefix:'3'},{namePrefix:'4'},{namePrefix:'5'},{namePrefix:'6'},{namePrefix:'7'},{namePrefix:'8'},{namePrefix:'9'},{namePrefix:'a'},{namePrefix:'b'},{namePrefix:'c'},{namePrefix:'d'},{namePrefix:'e'},{namePrefix:'f'},{namePrefix:'g'},{namePrefix:'h'},{namePrefix:'i'},{namePrefix:'j'},{namePrefix:'k'},{namePrefix:'l'},{namePrefix:'m'},{namePrefix:'n'},{namePrefix:'o'},{namePrefix:'p'},{namePrefix:'q'},{namePrefix:'r'},{namePrefix:'s'},{namePrefix:'t'},{namePrefix:'u'},{namePrefix:'v'},{namePrefix:'w'},{namePrefix:'x'},{namePrefix:'y'},{namePrefix:'z'},{namePrefix:'A'},{namePrefix:'B'},{namePrefix:'C'},{namePrefix:'D'},{namePrefix:'E'},{namePrefix:'F'},{namePrefix:'G'},{namePrefix:'H'},{namePrefix:'I'},{namePrefix:'J'},{namePrefix:'K'},{namePrefix:'L'},{namePrefix:'M'},{namePrefix:'N'},{namePrefix:'O'},{namePrefix:'P'},{namePrefix:'Q'},{namePrefix:'R'},{namePrefix:'S'},{namePrefix:'T'},{namePrefix:'U'},{namePrefix:'V'},{namePrefix:'W'},{namePrefix:'X'},{namePrefix:'Y'},{namePrefix:'Z'}
-			]
+			],
+			// Bug: battery service is missing, edit /lib/systemd/system/bluetooth.service
+			optionalServices: [OTA_SERVICE_UUID, 'battery_service']
+
 		});
 
 		updateitemid("idDeviceInfo", ".");
@@ -173,6 +177,8 @@ var otaBlock;
 		});
 
 		writelog("getPrimaryService ... ");
+		
+		//writelog("getPrimaryService ... ");
 		otaService = await gattserver.getPrimaryService(OTA_SERVICE_UUID);
 		writelog("OTA_SERVICE_UUID : " + otaService.uuid);
 
@@ -194,9 +200,12 @@ var otaBlock;
 		otaBlock.addEventListener("characteristicvaluechanged",
 				handleCharacteristicValueChangedBlock);
 
+		//getBatteryLevel();
+
 		if (reconnection == false){
 			writeCommand(GET_RCU_INFO);
 		}
+
 		//await char.stopNotifications();
 		//await server.disconnect();		
 	} // connectToDevice
@@ -263,6 +272,28 @@ var otaBlock;
 		.catch(error => { console.error(error); });
 	} // bleScan
 */
+	function getBatteryLevel(){
+		bleDevice.gatt.connect()
+			.then(server => {
+				// Getting Battery Service…
+				return server.getPrimaryService('battery_service');
+			})
+			.then(service => {
+				// Getting Battery Level Characteristic…
+				return service.getCharacteristic('battery_level');
+			})
+			.then(characteristic => {
+				// Reading Battery Level…
+				return characteristic.readValue();;
+			})
+			.then(value => {
+				batterylevel = value.getUint8(0);
+				console.log(`Battery percentage is ${value.getUint8(0)}`);
+			})
+			.catch(error => { console.error(error); });
+
+	}
+
 var rxdata2;
 	function handleCharacteristicValueChanged(event) {
 		var message;
@@ -277,8 +308,9 @@ var rxdata2;
 
 	  	switch(rxdata[1]){
 	  		case 0x01:
-	  			message = "RCU ID: " + rxdata[5].toString(16) + "." + rxdata[4].toString(16) +
-	  				", Version: " + rxdata[3].toString(16) + "." + rxdata[2].toString(16);
+	  			message = "RCU ID: " + rxdata[5].toString(16) + "." + rxdata[4].toString(16)
+	  				+ ", Version: " + rxdata[3].toString(16) + "." + rxdata[2].toString(16);
+	  				//+ ", Battery: " + batterylevel;
 	  			writelog(message);
 	  			updateitemid("idDeviceInfo", message);
 	  		break;
