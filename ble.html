@@ -18,7 +18,7 @@
 	<div id="idFileInfo">.</div><br>
 <button id="start" onclick="startOTA()">Start OTA</button>&nbsp;<span id="idOTAUpdate"></span>
 <br><br>
-<button id="start" onclick="otaNotification()">OTA Notification</button>
+<button id="start" onclick="otaStartNotification()">OTA Notification</button>
 <br><br>
 <button id="start" onclick="getRCUInfo()">GetRCUInfo</button>
 <br><br>
@@ -181,6 +181,7 @@ var batterylevel;
 			updateitemid("idDeviceName", message);
 			onClickShowHideID('idReconnect','visible');
 		});
+
 /*
 		writelog("getPrimaryService ... ");
 		
@@ -239,8 +240,32 @@ var batterylevel;
 			.catch(error => { console.error(error); });
 	}
 
-	function otaNotification(){
-		startNotification(otaCommand);
+	async function otaStartNotification(){
+		var gattserver = await bleDevice.gatt.connect();
+
+		writelog("getPrimaryService ... ");
+		
+		//writelog("getPrimaryService ... ");
+		otaService = await gattserver.getPrimaryService(OTA_SERVICE_UUID);
+		writelog("OTA_SERVICE_UUID : " + otaService.uuid);
+
+		writelog("getCharacteristic ... ");
+		otaCommand = await otaService.getCharacteristic(OTA_COMMAND_UUID);
+		writelog("OTA_COMMAND_UUID : " + otaCommand.uuid);
+
+		await otaCommand.startNotifications();
+		writelog("Notifications started");
+		otaCommand.addEventListener("characteristicvaluechanged",
+				handleCharacteristicValueChanged);
+
+		writelog("getCharacteristic ... ");
+		otaBlock = await otaService.getCharacteristic(OTA_BLOCK_UUID);
+		writelog("OTA_BLOCK_UUID : " + otaBlock.uuid);
+		
+		await otaBlock.startNotifications();
+		writelog("Notifications started");
+		otaBlock.addEventListener("characteristicvaluechanged",
+				handleCharacteristicValueChangedBlock);
 	}
 
 	function startNotification(notify_characteristic){
