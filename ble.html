@@ -258,14 +258,16 @@ var batterylevel;
 		otaCommand = await otaService.getCharacteristic(OTA_COMMAND_UUID);
 		writelog("OTA_COMMAND_UUID : " + otaCommand.uuid);
 
+		writelog("getCharacteristic ... ");
+		otaBlock = await otaService.getCharacteristic(OTA_BLOCK_UUID);
+		writelog("OTA_BLOCK_UUID : " + otaBlock.uuid);
+		
 		await otaCommand.startNotifications();
 		writelog("Notifications started");
 		otaCommand.addEventListener("characteristicvaluechanged",
 				handleCharacteristicValueChanged);
 
-		writelog("getCharacteristic ... ");
-		otaBlock = await otaService.getCharacteristic(OTA_BLOCK_UUID);
-		writelog("OTA_BLOCK_UUID : " + otaBlock.uuid);
+		
 		
 		await otaBlock.startNotifications();
 		writelog("Notifications started");
