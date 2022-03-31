@@ -348,7 +348,7 @@ var response;
 			writelog(currentProgress);
 			updateitemid("idOTAUpdate", "Updating " + currentProgress);
 		}
-		otaBlock.writeValueWithResponse(writeData).then(writeResult=>{
+		otaBlock.writeValueWithoutResponse(writeData).then(writeResult=>{
 			//console.log("OK");
 			if((totalSize - blockSize) > 0){
 				transferbinary(blockNumber+1, blockSize, totalSize-blockSize);
