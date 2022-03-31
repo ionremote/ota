@@ -22,7 +22,7 @@
 <br><br>
 <button id="start" onclick="getRCUInfo()">GetRCUInfo</button>
 <br><br>
-<button id="start" onclick="getBatteryLevel()">Battery Level</button>
+<button id="start" onclick="getBatteryLevel()">Battery Level</button><span id="idBattery"></span>
 
 <br><br>
 <div id="idShowDetails" onclick="onClickShowHideID('idLogWindow', '')">Show Details</div><br>
@@ -217,6 +217,8 @@ var batterylevel;
 	} // connectToDevice
 
 	function getBatteryLevel(){
+		updateitemid("idBattery", "Reading ...");
+		writelog("getBatteryLevel");
 		bleDevice.gatt.connect()
 			.then(server => {
 				// Getting Battery Service…
@@ -231,8 +233,8 @@ var batterylevel;
 				return characteristic.readValue();;
 			})
 			.then(value => {
-				batterylevel = value.getUint8(0);
-				updateitemid("idDeviceInfo", `Battery: ${value.getUint8(0)}`);
+				writelog(`Battery: ${value.getUint8(0)}`);
+				updateitemid("idBattery", `Battery: ${value.getUint8(0)}`);
 			})
 			.catch(error => { console.error(error); });
 	}
