@@ -17,6 +17,8 @@
 <input type="file" id="idSelectedfile" title="&nbsp; " /><br>
 	<div id="idFileInfo">.</div><br>
 <button id="start" onclick="startOTA()">Start OTA</button>&nbsp;<span id="idOTAUpdate"></span>
+<br>
+<button id="start" onclick="getBatteryLevel()">Battery</button>
 
 <br><br>
 <div id="idShowDetails" onclick="onClickShowHideID('idLogWindow', '')">Show Details</div><br>
@@ -288,7 +290,7 @@ var batterylevel;
 			})
 			.then(value => {
 				batterylevel = value.getUint8(0);
-				console.log(`Battery percentage is ${value.getUint8(0)}`);
+				updateitemid("idDeviceInfo", `Battery: ${value.getUint8(0)}`);
 			})
 			.catch(error => { console.error(error); });
 
