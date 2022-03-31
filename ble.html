@@ -374,7 +374,7 @@ var response;
 	var writeResult;
 	async function writeCommand(command){
 		writelog('writeCommand :' + arrayBuffer2HexString(command));
-		writeResult = await otaCommand.writeValueWithResponse(command);
+		writeResult = await otaCommand.writeValueWithoutResponse(command);
 		writelog('writeCommand OK');
 	} // writeCommand
 
