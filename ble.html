@@ -269,7 +269,18 @@ var batterylevel;
 			writelog("Notifications started");
 			characteristic.addEventListener("characteristicvaluechanged",
 				handleCharacteristicValueChanged);
+		})
+		.then(_=>{
+			return otaService.getCharacteristic(OTA_BLOCK_UUID);
 
+		})
+		.then(characteristic=>{
+			otaBlock = characteristic;
+			writelog("OTA_BLOCK_UUID : " + otaBlock.uuid);
+			otaBlock.startNotifications();
+			writelog("Notifications started");
+			otaBlock.addEventListener("characteristicvaluechanged",
+				handleCharacteristicValueChangedBlock);
 		})
 		.catch(error => { writelog(error); });
 
