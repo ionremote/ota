@@ -396,8 +396,8 @@ var response;
 	async function handleCharacteristicValueChangedBlock(event) {
 		let rxdata = new Uint8Array(event.target.value.buffer);
 		rxdata2 = rxdata;
-		//writelog('handleCharacteristicValueChangedBlock');
-	  	//writelog('Length = ' + rxdata.byteLength + ", Data = " + arrayBuffer2HexString(rxdata));
+		writelog('handleCharacteristicValueChangedBlock');
+	  	writelog('Length = ' + rxdata.byteLength + ", Data = " + arrayBuffer2HexString(rxdata));
 
 	  	var blockHeader = rxdata.slice(0, 4);
 	  	var blockNumber	= rxdata[1] + rxdata[2]*0x100 + rxdata[3]*0x10000;
