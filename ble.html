@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-<title>OTA Application</title>
+<title>Omni OTA</title>
 <style>
 .body {
   background-color: #DDF0FF;
@@ -20,11 +20,14 @@
   background: #42A5F6;
   padding: 5px;
   border: none;
+  margin:auto; display:block;
 }
 .content {
   font-family: 'Hammersmith One', sans-serif;
   font-size: 20px;
-  border: none;
+  border: 2px;
+  margin:auto; display:block;
+  padding: 5px;
 }
 
 h1 {
@@ -35,7 +38,7 @@ h1 {
 </head>
 
 <body>
-<h1>OTA Application</h1>
+<h1>Omni OTA</h1>
 
 <button id="scan" class="button" onclick="onClickBleScan()">BLE Scan</button>
 	<span id="idDeviceName" class="content" ></span>
@@ -214,6 +217,7 @@ var batterylevel;
 			});
 		}
 
+		updateitemid("idDeviceInfo", "Service Discovery ... ");
 
 		writelog("getPrimaryService ... ");
 		
@@ -221,24 +225,33 @@ var batterylevel;
 		otaService = await gattserver.getPrimaryService(OTA_SERVICE_UUID);
 		writelog("OTA_SERVICE_UUID : " + otaService.uuid);
 
+		updateitemid("idDeviceInfo", "Finding OTA Command ... ");
+
 		writelog("getCharacteristic ... ");
 		otaCommand = await otaService.getCharacteristic(OTA_COMMAND_UUID);
 		writelog("OTA_COMMAND_UUID : " + otaCommand.uuid);
+
+		updateitemid("idDeviceInfo", "Notifications : OTA Command");
 
 		await otaCommand.startNotifications();
 		writelog("Notifications started");
 		otaCommand.addEventListener("characteristicvaluechanged",
 				handleCharacteristicValueChanged);
 
+		updateitemid("idDeviceInfo", "Finding OTA Block ... ");
+
 		writelog("getCharacteristic ... ");
 		otaBlock = await otaService.getCharacteristic(OTA_BLOCK_UUID);
 		writelog("OTA_BLOCK_UUID : " + otaBlock.uuid);
 		
+		updateitemid("idDeviceInfo", "Notifications : OTA Block");
+
 		await otaBlock.startNotifications();
 		writelog("Notifications started");
 		otaBlock.addEventListener("characteristicvaluechanged",
 				handleCharacteristicValueChangedBlock);
 
+		updateitemid("idDeviceInfo", "RCU Info ... ");
 		//getBatteryLevel();
 
 		if (reconnection == false){
