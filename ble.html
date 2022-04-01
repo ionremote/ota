@@ -4,6 +4,7 @@
 	<meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+	<link rel="manifest" href="/manifest.webmanifest">
 <title>Omni OTA</title>
 <style>
 body {
@@ -28,6 +29,11 @@ h1 {
   padding: 5px;
   border: none;
   margin:auto; display:block;
+}
+
+.width50{
+	width:40%;
+	display:inline-block;
 }
 .content {
   width: 90%;
@@ -69,14 +75,12 @@ h1 {
 	<button id="start" class="button" onclick="startOTA()">Start OTA</button><span id="idOTAUpdate" class="content">&nbsp;</span>
 	<br>
 
-	<div class="hideOnPortrait" >
-		<button id="start" class="button" onclick="otaStartNotification()">OTA Notification</button>
-		<br>
-		<button id="start" class="button" onclick="getRCUInfo()">GetRCUInfo</button>
-		<br>
-		<button id="start" class="button" onclick="getConnectionInfo()">Connection Info</button>
-		<br>
-		<button id="start" class="button" onclick="getBatteryLevel()">Battery Level</button><span id="idBattery">&nbsp;</span>
+	<div class="hideOnPortrait" style="margin: auto;width:100%">
+		<button id="start" class="button width50" onclick="otaStartNotification()">OTA Notification</button>
+		<button id="start" class="button width50" onclick="getRCUInfo()">GetRCUInfo</button>
+		<br><br>
+		<button id="start" class="button width50" onclick="getConnectionInfo()">Connection Info</button>
+		<button id="start" class="button width50" onclick="getBatteryLevel()">Battery Level</button><span id="idBattery">&nbsp;</span>
 		<br>
 	</div>
 
