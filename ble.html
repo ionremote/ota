@@ -17,7 +17,7 @@ h1 {
   text-align:center;
 }
 .button {
-  width: 90vw;
+  width: 90%;
   height: 40px;
   font-family: 'Hammersmith One', sans-serif;
   font-size: 16px;
@@ -30,7 +30,7 @@ h1 {
   margin:auto; display:block;
 }
 .content {
-  width: 90vw;
+  width: 90%;
   font-family: 'Hammersmith One', sans-serif;
   font-size: 18px;
   border: 2px;
@@ -38,47 +38,56 @@ h1 {
   padding: 5px;
 }
 
-.logWindow{
-  background-color: #dddddd;
-  width: 90vw;
-  height:300px;
-  margin:auto; display:block;
-  overflow-y:scroll;
-  font-size:12px;
+
+.left{width:50vw;float:left;margin:auto;}
+.right{width:50vw;float:left;display:inline;margin:auto;}
+.logWindow{background-color: #dddddd;width:95%;height:300px;margin:auto;overflow-y:scroll;font-size:12px;display:block;}
+
+@media screen and (max-width: 600px) {
+.left{width:100vw;display:block;margin:2px;}
+.right{width:100vw;display:block;margin:2px;}
+.logWindow{background-color: #dddddd;width:95%;height:300px;margin:auto;overflow-y:scroll;font-size:12px;display:none;}
+.hideOnPortrait{display:none;}
 }
+
 </style>
 </head>
 
 <body>
 <h1>Omni OTA</h1>
 
-<button id="scan" class="button" onclick="onClickBleScan()">BLE Scan</button>
-<div class="content">
-<span id="idDeviceName" style="width:auto;float:left;display: inline;"></span>
-<button id="idReconnect" onclick="onClickReconnect();" style="visibility:hidden;width:auto;float:right;display:inline;color:red;"><b><u>Reconnect</u></b></button><br>
-</div>
-<div id="idDeviceInfo" class="content"></div><br>
-<input type="file" class="button" id="idSelectedfile" title="&nbsp; " />
+<div class="left">
+	<button id="scan" class="button" onclick="onClickBleScan()">BLE Scan</button>
+	<div class="content">
+		<span id="idDeviceName" style="width:auto;float:left;display: inline;"></span>
+		<button id="idReconnect" onclick="onClickReconnect();" style="visibility:hidden;width:auto;float:right;display:inline;color:red;"><b><u>Reconnect</u></b></button><br>
+	</div>
+	<div id="idDeviceInfo" class="content"></div><br>
+	<input type="file" class="button" id="idSelectedfile" title="&nbsp; " />
 	<div id="idFileInfo" class="content">&nbsp;</div><br>
-<button id="start" class="button" onclick="startOTA()">Start OTA</button><span id="idOTAUpdate" class="content">&nbsp;</span>
-<br>
+	
+	<button id="start" class="button" onclick="startOTA()">Start OTA</button><span id="idOTAUpdate" class="content">&nbsp;</span>
+	<br>
 
-<div style="display:none">
-<button id="start" class="button" onclick="otaStartNotification()">OTA Notification</button>
-<br><br>
-<button id="start" class="button" onclick="getRCUInfo()">GetRCUInfo</button>
-<br><br>
-<button id="start" class="button" onclick="getConnectionInfo()">Connection Info</button>
-<br><br>
-<button id="start" class="button" onclick="getBatteryLevel()">Battery Level</button><span id="idBattery">&nbsp;</span>
-<br><br>
+	<div class="hideOnPortrait" >
+		<button id="start" class="button" onclick="otaStartNotification()">OTA Notification</button>
+		<br>
+		<button id="start" class="button" onclick="getRCUInfo()">GetRCUInfo</button>
+		<br>
+		<button id="start" class="button" onclick="getConnectionInfo()">Connection Info</button>
+		<br>
+		<button id="start" class="button" onclick="getBatteryLevel()">Battery Level</button><span id="idBattery">&nbsp;</span>
+		<br>
+	</div>
+
 </div>
 
-<div id="idShowDetails" class="button" onclick="onClickShowHideID('idLogWindow', '')">Show Details</div><br>
-<div id="idLogWindow" class="logWindow" style="display:none">
-	<div id="idLogContent" style="white-space: pre;overflow:auto; display:flex; flex-direction:column-reverse;"></div>
+<div class="right" >
+	<div id="idShowDetails" class="button hideOnPortrait" onclick="onClickShowHideID('idLogWindow', '')">Show Details</div><br>
+	<div id="idLogWindow" class="logWindow">
+		<div id="idLogContent" style="white-space: pre;overflow:auto; display:flex; flex-direction:column-reverse;"></div>
+	</div>
 </div>
-
 <script>
 	const OTA_SERVICE_UUID 	= "cbc0e185-76af-402e-9b82-620884e57934";	// must be lowercase
 	const OTA_COMMAND_UUID	= "0f3eabd8-c687-42fc-adcf-208bc2c126b9";
@@ -170,11 +179,11 @@ h1 {
 		var x = document.getElementById(id);
 
 		if (forced==''){ // none = hide
-			if (x.style.visibility === "hidden" || x.style.visibility === "visible"){
-				x.style.visibility = (x.style.visibility === "hidden")?"visible":"hidden";
-			}
-			else if (x.style.display === "none" || x.style.display === "block"){
+			if (x.style.display === "none" || x.style.display === "block"){
 				x.style.display = (x.style.display === "none")?"block":"none";
+			}
+			else if (x.style.visibility === "hidden" || x.style.visibility === "visible"){
+				x.style.visibility = (x.style.visibility === "hidden")?"visible":"hidden";
 			}
 		}
 		else{
@@ -504,6 +513,9 @@ var response;
 	}
 
 	function sendImageHeader(headerlength){
+		if (fileData==undefined){
+			return;
+		}
 		var commandheader = new Uint8Array([0xA0, 0x03]);
 		var fileheader = fileData.slice(0, 16);
 		var command = new Uint8Array([ ...commandheader, ...fileData.slice(0, 16)]);
