@@ -3,33 +3,60 @@
 <head>
 	<meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <title>OTA Application</title>
+<style>
+.body {
+  background-color: #DDF0FF;
+}
+.button {
+  width: 100vw;
+  height: 40px;
+  font-family: 'Hammersmith One', sans-serif;
+  font-size: 16px;
+  color: white;
+  text-align: center;
+  border-radius: 10px;
+  background: #42A5F6;
+  padding: 5px;
+  border: none;
+}
+.content {
+  font-family: 'Hammersmith One', sans-serif;
+  font-size: 20px;
+  border: none;
+}
+
+h1 {
+  color: black;
+  text-align:center;
+}
+</style>
 </head>
 
 <body>
 <h1>OTA Application</h1>
-<hr>
 
-<button id="scan" onclick="onClickBleScan()">BLE Scan</button>
-	<span id="idDeviceName"><= Click to scan for device</span>
+<button id="scan" class="button" onclick="onClickBleScan()">BLE Scan</button>
+	<span id="idDeviceName" class="content" ></span>
 	<span id="idReconnect" onclick="onClickReconnect();" style="visibility:hidden;color:red;"><b><u>Reconnect</u></b></span><br>
-	<div id="idDeviceInfo">.</div><br>
-<input type="file" id="idSelectedfile" title="&nbsp; " /><br>
-	<div id="idFileInfo">.</div><br>
-<button id="start" onclick="startOTA()">Start OTA</button>&nbsp;<span id="idOTAUpdate"></span>
+	<div id="idDeviceInfo"></div><br>
+<input type="file" class="button" id="idSelectedfile" title="&nbsp; " /><br>
+	<div id="idFileInfo"></div><br>
+<button id="start" class="button" onclick="startOTA()">Start OTA</button>&nbsp;<span id="idOTAUpdate"></span>
 <br><br>
-<button id="start" onclick="otaStartNotification()">OTA Notification</button>
+<button id="start" class="button" onclick="otaStartNotification()">OTA Notification</button>
 <br><br>
-<button id="start" onclick="getRCUInfo()">GetRCUInfo</button>
+<button id="start" class="button" onclick="getRCUInfo()">GetRCUInfo</button>
 <br><br>
-<button id="start" onclick="getConnectionInfo()">Connection Info</button>
+<button id="start" class="button" onclick="getConnectionInfo()">Connection Info</button>
 <br><br>
-<button id="start" onclick="getBatteryLevel()">Battery Level</button><span id="idBattery"></span>
+<button id="start" class="button" onclick="getBatteryLevel()">Battery Level</button><span id="idBattery"></span>
 
 <br><br>
-<div id="idShowDetails" onclick="onClickShowHideID('idLogWindow', '')">Show Details</div><br>
+<div id="idShowDetails" class="button" onclick="onClickShowHideID('idLogWindow', '')">Show Details</div><br>
 <div id="idLogWindow" style="display:none">
-	<div id="txtinfo" rows="12" cols="60"></textarea>
+	<div id="txtinfo" rows="12" cols="60"></div>
 </div>
 <script>
 	const OTA_SERVICE_UUID 	= "cbc0e185-76af-402e-9b82-620884e57934";	// must be lowercase
@@ -385,14 +412,23 @@ var response;
 
 	var writeResult;
 	async function writeCommand(command){
-		writelog('writeCommand :' + arrayBuffer2HexString(command));
+		
 		// Mobile Android only work withoutResponse
-		writeResult = await otaCommand.writeValueWithoutResponse(command); 
-		writelog('writeCommand OK');
+		writelog('writeCommand :' + arrayBuffer2HexString(command));
+		//writeResult = await otaCommand.writeValueWithoutResponse(command);
+		//writelog('writeCommand OK');
+
+		// Todo: Check otaCommand is valid
+		otaCommand.writeValueWithoutResponse(command)
+		.then(_=>{
+			writelog('writeCommand OK');
+		})
+		.catch(error => { writelog(error); });
 	} // writeCommand
 
 	async function writeBlock(command){
 		writelog('writeBlock :' + arrayBuffer2HexString(command));
+		// Todo: Check otaBlock is valid
 		await otaBlock.writeValueWithoutResponse(command);
 		writelog('writeBlock OK');
 	} // writeBlock
