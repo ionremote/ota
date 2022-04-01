@@ -140,7 +140,8 @@ h1 {
 		const timenow = Date().slice(16,21);
 		let logContent = document.getElementById("idLogContent");
 		logContent.innerHTML += timenow + " " + data + "\n";
-		logContent.scrollIntoView(false);
+		let logWindow = document.getElementById('idLogWindow');
+		logWindow.scrollTop = logWindow.scrollHeight;
 	} // writelog
 
 	function writesameline(data){
