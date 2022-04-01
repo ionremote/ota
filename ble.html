@@ -214,7 +214,7 @@ var batterylevel;
 			});
 		}
 
-/*
+
 		writelog("getPrimaryService ... ");
 		
 		//writelog("getPrimaryService ... ");
@@ -244,7 +244,7 @@ var batterylevel;
 		if (reconnection == false){
 			getRCUInfo();//writeCommand(GET_RCU_INFO);
 		}
-*/
+
 		//await char.stopNotifications();
 		//await server.disconnect();		
 	} // connectToDevice
@@ -299,7 +299,6 @@ var batterylevel;
 		})
 		.then(_=>{
 			return otaService.getCharacteristic(OTA_BLOCK_UUID);
-
 		})
 		.then(characteristic=>{
 			otaBlock = characteristic;
