@@ -6,8 +6,15 @@
 	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <title>Omni OTA</title>
 <style>
-.body {
+body {
   background-color: #DDF0FF;
+  height: 100vh;
+  width: 100vw;
+}
+h1 {
+  font-size: 26px;
+  color: black;
+  text-align:center;
 }
 .button {
   width: 90vw;
@@ -31,9 +38,13 @@
   padding: 5px;
 }
 
-h1 {
-  color: black;
-  text-align:center;
+.logWindow{
+  background-color: #dddddd;
+  width: 90vw;
+  height:300px;
+  margin:auto; display:block;
+  overflow-y:scroll;
+  font-size:12px;
 }
 </style>
 </head>
@@ -47,23 +58,27 @@ h1 {
 <button id="idReconnect" onclick="onClickReconnect();" style="visibility:hidden;width:auto;float:right;display:inline;color:red;"><b><u>Reconnect</u></b></button><br>
 </div>
 <div id="idDeviceInfo" class="content"></div><br>
-<input type="file" class="button" id="idSelectedfile" title="&nbsp; " /><br>
-	<div id="idFileInfo" class="content"></div><br>
-<button id="start" class="button" onclick="startOTA()">Start OTA</button>&nbsp;<span id="idOTAUpdate" class="content"></span>
-<br><br>
+<input type="file" class="button" id="idSelectedfile" title="&nbsp; " />
+	<div id="idFileInfo" class="content">&nbsp;</div><br>
+<button id="start" class="button" onclick="startOTA()">Start OTA</button><span id="idOTAUpdate" class="content">&nbsp;</span>
+<br>
+
+<div style="display:none">
 <button id="start" class="button" onclick="otaStartNotification()">OTA Notification</button>
 <br><br>
 <button id="start" class="button" onclick="getRCUInfo()">GetRCUInfo</button>
 <br><br>
 <button id="start" class="button" onclick="getConnectionInfo()">Connection Info</button>
 <br><br>
-<button id="start" class="button" onclick="getBatteryLevel()">Battery Level</button><span id="idBattery"></span>
-
+<button id="start" class="button" onclick="getBatteryLevel()">Battery Level</button><span id="idBattery">&nbsp;</span>
 <br><br>
-<div id="idShowDetails" class="button" onclick="onClickShowHideID('idLogWindow', '')">Show Details</div><br>
-<div id="idLogWindow" style="display:none">
-	<div id="txtinfo" rows="12" cols="60"></div>
 </div>
+
+<div id="idShowDetails" class="button" onclick="onClickShowHideID('idLogWindow', '')">Show Details</div><br>
+<div id="idLogWindow" class="logWindow" style="display:block">
+	<div id="idLogContent" style="white-space: pre;overflow:auto; display:flex; flex-direction:column-reverse;"></div>
+</div>
+
 <script>
 	const OTA_SERVICE_UUID 	= "cbc0e185-76af-402e-9b82-620884e57934";	// must be lowercase
 	const OTA_COMMAND_UUID	= "0f3eabd8-c687-42fc-adcf-208bc2c126b9";
@@ -113,10 +128,10 @@ h1 {
 	}
 
 	function writelog(data){
-		let txtinfo = document.getElementById("txtinfo");
-		txtinfo.innerHTML+= data;
-		txtinfo.innerHTML += "<br>";
-		txtinfo.scrollTop = txtinfo.scrollHeight;
+		const timenow = Date().slice(16,21);
+		let logContent = document.getElementById("idLogContent");
+		logContent.innerHTML += timenow + " " + data + "\n";
+		logContent.scrollIntoView(false);
 	} // writelog
 
 	function writesameline(data){
