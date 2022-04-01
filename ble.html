@@ -10,7 +10,7 @@
   background-color: #DDF0FF;
 }
 .button {
-  width: 100vw;
+  width: 90vw;
   height: 40px;
   font-family: 'Hammersmith One', sans-serif;
   font-size: 16px;
@@ -23,8 +23,9 @@
   margin:auto; display:block;
 }
 .content {
+  width: 90vw;
   font-family: 'Hammersmith One', sans-serif;
-  font-size: 20px;
+  font-size: 18px;
   border: 2px;
   margin:auto; display:block;
   padding: 5px;
@@ -41,12 +42,14 @@ h1 {
 <h1>Omni OTA</h1>
 
 <button id="scan" class="button" onclick="onClickBleScan()">BLE Scan</button>
-	<span id="idDeviceName" class="content" ></span>
-	<span id="idReconnect" onclick="onClickReconnect();" style="visibility:hidden;color:red;"><b><u>Reconnect</u></b></span><br>
-	<div id="idDeviceInfo"></div><br>
+<div class="content">
+<span id="idDeviceName" style="width:auto;float:left;display: inline;"></span>
+<button id="idReconnect" onclick="onClickReconnect();" style="visibility:hidden;width:auto;float:right;display:inline;color:red;"><b><u>Reconnect</u></b></button><br>
+</div>
+<div id="idDeviceInfo" class="content"></div><br>
 <input type="file" class="button" id="idSelectedfile" title="&nbsp; " /><br>
-	<div id="idFileInfo"></div><br>
-<button id="start" class="button" onclick="startOTA()">Start OTA</button>&nbsp;<span id="idOTAUpdate"></span>
+	<div id="idFileInfo" class="content"></div><br>
+<button id="start" class="button" onclick="startOTA()">Start OTA</button>&nbsp;<span id="idOTAUpdate" class="content"></span>
 <br><br>
 <button id="start" class="button" onclick="otaStartNotification()">OTA Notification</button>
 <br><br>
@@ -208,6 +211,8 @@ var batterylevel;
 			onClickShowHideID('idReconnect','hidden');
 		}
 		
+		updateitemid("idDeviceInfo", "addEventListener ... ");
+		
 		if (reconnection == false){
 			device.addEventListener('gattserverdisconnected', function(event){
 				var message = event.target.name + " is disconnected";
@@ -251,11 +256,14 @@ var batterylevel;
 		otaBlock.addEventListener("characteristicvaluechanged",
 				handleCharacteristicValueChangedBlock);
 
-		updateitemid("idDeviceInfo", "RCU Info ... ");
+		
 		//getBatteryLevel();
 
-		if (reconnection == false){
-			getRCUInfo();//writeCommand(GET_RCU_INFO);
+		//if (reconnection == false)
+		{
+			setTimeout(() => {
+				getRCUInfo();//writeCommand(GET_RCU_INFO);
+			}, 100);
 		}
 
 		//await char.stopNotifications();
@@ -359,6 +367,7 @@ var batterylevel;
 	}
 
 	function getRCUInfo(){
+		updateitemid("idDeviceInfo", "Getting RCU Info ... ");
 		writeCommand(GET_RCU_INFO);
 	}
 
