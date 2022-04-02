@@ -2,7 +2,7 @@
     "theme_color": "#808487",
     "background_color": "#35adf6",
     "display": "fullscreen",
-    "scope": "/",
+    "scope": "ota/",
     "start_url": "/",
     "name": "Omni OTA",
     "short_name": "OTA",
