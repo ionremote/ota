@@ -3,7 +3,7 @@
     "background_color": "#35adf6",
     "display": "fullscreen",
     "scope": "/",
-    "start_url": "/",
+    "start_url": "/ota",
     "name": "Omni OTA",
     "short_name": "OTA",
     "icons": [
