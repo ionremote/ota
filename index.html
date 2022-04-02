@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
 	<meta charset="utf-8">
@@ -5,42 +6,11 @@
 	<link rel="manifest" href="/ota/manifest.webmanifest">
 <title>Omni OTA</title>
 <style>
-body {
-  background-color: #DDF0FF;
-  height: 100vh;
-  width: 100vw;
-}
-h1 {
-  font-size: 26px;
-  color: black;
-  text-align:center;
-}
-.button {
-  width: 90%;
-  height: 40px;
-  font-family: 'Hammersmith One', sans-serif;
-  font-size: 16px;
-  color: white;
-  text-align: center;
-  border-radius: 10px;
-  background: #42A5F6;
-  padding: 5px;
-  border: none;
-  margin:auto; display:block;
-}
-
-.width50{
-	width:40%;
-	display:inline-block;
-}
-.content {
-  width: 90%;
-  font-family: 'Hammersmith One', sans-serif;
-  font-size: 18px;
-  border: 2px;
-  margin:auto; display:block;
-  padding: 5px;
-}
+body {background-color:#DDF0FF;height:100vh;width:100vw;overscroll-behavior: contain;}
+h1 {font-size:26px;color: black;text-align:center;}
+.button {width: 90%;height: 40px;font-size: 16px;color: white;text-align: center;border-radius: 10px;background: #42A5F6;padding: 5px;border:none;margin:auto; display:block;}
+.width50{width:40%;display:inline-block;}
+.content {width:90%;font-size:18px;border:2px;margin:auto;display:block;padding:5px;}
 
 
 .left{width:50vw;float:left;margin:auto;}
@@ -53,7 +23,6 @@ h1 {
 .logWindow{background-color: #dddddd;width:95%;height:80vh;margin:auto;overflow-y:scroll;font-size:12px;display:none;}
 .hideOnPortrait{display:none;}
 }
-
 </style>
 </head>
 
@@ -249,6 +218,7 @@ var batterylevel;
 			});
 		}
 
+		// Todo otaStartNotification
 		updateitemid("idDeviceInfo", "Service Discovery ... ");
 
 		writelog("getPrimaryService ... ");
@@ -439,7 +409,7 @@ var batterylevel;
 
 	} // handleCharacteristicValueChanged
 
-var response;
+	//var response;
 
 	async function handleCharacteristicValueChangedBlock(event) {
 		let rxdata = new Uint8Array(event.target.value.buffer);
@@ -531,17 +501,17 @@ var response;
 		switch(status){
 			case 0x08:
 				message = "Update Successfully";
-	  			writelog(message);
-				updateitemid("idOTAUpdate", message);
 			break;
 
 			default:
-				writelog("OTA Status : 0x" + status.toString(16));
+				message = "OTA Status : 0x" + status.toString(16);
 			break;
 		}
-
-	}
+		writelog(message);
+		updateitemid("idOTAUpdate", message);
+	} // otaStatus
 </script>
+
 <script>
 if('serviceWorker' in navigator) {
   navigator.serviceWorker
