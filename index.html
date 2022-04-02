@@ -545,7 +545,7 @@ var response;
 <script>
 if('serviceWorker' in navigator) {
   navigator.serviceWorker
-           .register('/ota/sw.js')
+           .register('/ota/sw.js',{scope:'/ota/'})
            .then(function() { console.log("Service Worker Registered"); });
 }
 </script>
