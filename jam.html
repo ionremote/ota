@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style type="text/css">
+          #map{ width:700px; height: 500px; }
+        </style>
+        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js"></script>
+        <title>Jam</title>
+    </head>
+    <body>
+        <h1>Add favorite location</h1>
+        <!--map div-->
+        <div id="map"></div>
+        <br>
+        <input type="text" id="lat" readonly="yes">
+        <input type="text" id="lng" readonly="yes">
+        <input type="text" id="nickname">
+        
+        <!--script type="text/javascript" src="map.js"></script-->
+        <button onclick="onClickButton">Jurong 455</button>
+<script>
+	function onClickButton(){
+		var gpsCoord = "1.3331306,103.7420909";
+		var url = 'https://www.google.com/maps/search/?api=1&query='+gpsCoord;
+		window.open(url);
+	}
+</script>
+    </body>
+</html>
