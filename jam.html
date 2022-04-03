@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html>
     <head>
+    	<meta charset="utf-8">
+    	<meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style type="text/css">
           #map{ width:700px; height: 500px; }
+          .hide{display:none;}
+          .show{display:block;}
         </style>
         <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js"></script>
         <title>Jam</title>
     </head>
     <body>
+    	<div class="hide">
         <h1>Add favorite location</h1>
         <!--map div-->
         <div id="map"></div>
@@ -16,11 +21,12 @@
         <input type="text" id="lng" readonly="yes">
         <input type="text" id="nickname">
         
+        </div>
         <!--script type="text/javascript" src="map.js"></script-->
         <button onclick="onClickButton()">Jurong 455</button>
 <script>
 	function onClickButton(){
-		var gpsCoord = "1.3331306,103.7420909";
+		var gpsCoord = "1.35110,103.7188";
 		var url = 'https://www.google.com/maps/search/?api=1&query='+gpsCoord;
 		window.open(url);
 	}
